@@ -51,6 +51,19 @@ header {
   padding: 5rem 1.5rem 1.5rem 1.5rem;
 }
 
+.me > img {
+  margin-bottom: 4rem;
+  height: 20rem;
+  border-radius: 13rem 13rem 0 0;
+  overflow: hidden;
+  padding: 5rem 1.5rem 1.5rem 1.5rem;
+  position: absolute;
+  width: 22rem;
+  left: calc(50% - 11rem);
+  background: linear-gradient(var(--color-primary), transparent);
+  background: linear-gradient(var(--color-primary-var), transparent);
+}
+
 /* ============== Scroll Down =============== */
 
 .scroll_down {

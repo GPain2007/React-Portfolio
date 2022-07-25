@@ -37,7 +37,13 @@ const About = () => {
               <small>10+ completed</small>
             </article>
           </div>
-          <p> Hello this is my paragraph</p>
+          <p>
+            {" "}
+            My name is Govnor Payne. I recently decided to change my life and
+            career path to one that I have always dream of doing. I've completed
+            my Software Engineering schooling and I'm looking to utilize these
+            skills and grow with you!
+          </p>
           <a href="#contact" className="btn btn-primary">
             Let's Talk
           </a>
