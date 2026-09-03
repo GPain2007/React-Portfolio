@@ -22,8 +22,24 @@
   overflow: hidden;
 }
 
+.portfolio_item-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 12rem;
+  background: var(--color-bg);
+  font-size: 3rem;
+  color: var(--color-primary);
+}
+
 .portfolio_item h3 {
-  margin: 1.2rem 0 2rem;
+  margin: 1.2rem 0 1rem;
+}
+
+.portfolio_item-desc {
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+  color: var(--color-light);
 }
 
 .portfolio_item-cta {

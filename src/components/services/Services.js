@@ -12,62 +12,84 @@ const Services = () => {
       <div className="container services_container">
         <article className="service">
           <div className="service_head">
-            <h3>UI/UX Design</h3>
+            <h3>Full-Stack Development</h3>
+          </div>
+
+          <ul className="service_list">
+            <li>
+              <AiOutlineCheck className="service_list-icon" />
+              <p>Building scalable web applications with React and Node.js</p>
+            </li>
+            <li>
+              <AiOutlineCheck className="service_list-icon" />
+              <p>
+                Designing and maintaining back-end services and APIs with
+                Python
+              </p>
+            </li>
+            <li>
+              <AiOutlineCheck className="service_list-icon" />
+              <p>
+                Applying OOP, data structures, and algorithms to build
+                efficient, maintainable systems
+              </p>
+            </li>
+          </ul>
+        </article>
+        {/* END OF FULL-STACK DEVELOPMENT */}
+        <article className="service">
+          <div className="service_head">
+            <h3>Cloud, DevOps &amp; QA</h3>
           </div>
 
           <ul className="service_list">
             <li>
               <AiOutlineCheck className="service_list-icon" />
               <p>
-                Using CSS and Bootstrap to create wonderfully dynamic designed
-                applications{" "}
+                Deploying and troubleshooting applications on AWS and
+                Microsoft Azure
               </p>
             </li>
             <li>
               <AiOutlineCheck className="service_list-icon" />
-              <p>Using anywhere from HTML to React to desgin your website </p>
+              <p>
+                Conducting root cause analysis to improve reliability and
+                performance
+              </p>
+            </li>
+            <li>
+              <AiOutlineCheck className="service_list-icon" />
+              <p>
+                Automated testing with Python and Selenium, plus Git-based
+                version control
+              </p>
             </li>
           </ul>
         </article>
-        {/* END OF UI/UX */}
+        {/* END OF CLOUD, DEVOPS & QA */}
         <article className="service">
           <div className="service_head">
-            <h3>Web Development</h3>
+            <h3>AI-Enhanced Engineering</h3>
           </div>
 
           <ul className="service_list">
             <li>
               <AiOutlineCheck className="service_list-icon" />
-              <p>Building with React to build web pages.</p>
+              <p>
+                Leveraging tools like ChatGPT, Claude, Gemini, and Copilot to
+                accelerate development and automate workflows
+              </p>
             </li>
             <li>
               <AiOutlineCheck className="service_list-icon" />
-              <p>Development through OOP</p>
-            </li>
-            <li>
-              <AiOutlineCheck className="service_list-icon" />
-              <p>Development through TDD</p>
-            </li>
-            <li>
-              <AiOutlineCheck className="service_list-icon" />
-              <p>Using CRUD and MERN best development practices</p>
+              <p>
+                Practicing responsible AI use and AI governance in applied
+                technical environments
+              </p>
             </li>
           </ul>
         </article>
-        {/* END OF UI/UX */}
-        <article className="service">
-          <div className="service_head">
-            <h3>Content Creation</h3>
-          </div>
-
-          <ul className="service_list">
-            <li>
-              <AiOutlineCheck className="service_list-icon" />
-              <p>Creating your websites and apps for current consumers</p>
-            </li>
-          </ul>
-        </article>
-        {/* END OF UI/UX */}
+        {/* END OF AI-ENHANCED ENGINEERING */}
       </div>
     </section>
   );
