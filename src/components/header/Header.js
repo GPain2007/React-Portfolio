@@ -1,26 +1,34 @@
 import React from "react";
 import "./Header.css";
-// import CTA from "./cta";
-import ME from "../../assets/IMG_6280.jpeg";
+import CTA from "./cta";
+
 import HeaderSocials from "./HeaderSocials";
+
+// Drop your video file in the `public/` folder as `header-video.mp4`
+// (and optionally `header-poster.jpg` for the first-frame image).
+const VIDEO_SRC = `${process.env.PUBLIC_URL}/header-video.mp4`;
+const POSTER_SRC = `${process.env.PUBLIC_URL}/header-poster.jpg`;
 
 const Header = () => {
   return (
     <header>
-      <div className="container header">
-        <h5>Hello I'm </h5>
-        <h1>Govnor Payne</h1>
-        <h5 className="text-light">Fullstack Developer </h5>
-        {/* <CTA /> */}
-        <HeaderSocials />
+      <video
+        className="header_video"
+        src={VIDEO_SRC}
+        poster={POSTER_SRC}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+      />
+      <div className="header_overlay" />
 
-        <div className="me">
-          <img src={ME} alt="" className="img" />
+      <div className="container header">
+        <div className="header_content">
+          <CTA className="cta" />
+          <HeaderSocials />
         </div>
-        <a href="#contact" className="scroll_down">
-          {" "}
-          Scroll Down
-        </a>
       </div>
     </header>
   );
