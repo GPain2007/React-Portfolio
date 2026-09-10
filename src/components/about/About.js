@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./About.css";
 
 const PARAGRAPH =
-  "My name is Govnor Payne. I am a Software Engineer. I went from fixing Chiller and HVAC systems to building complex React applications using modern web technologies. I have contributed to various projects and continuously strive to improve my skills. the evolution of my career has been both challenging and rewarding. Come see what I can do.";
+  "My name is Govnor Payne. I am a Software Engineer. I went from fixing Chiller and HVAC systems to building complex React applications using modern web technologies. I have contributed to various projects and continuously strive to improve my skills. The evolution of my career has been both challenging and rewarding. Come see what I can do.";
 
 const INTACT_MS = 8 * 1000; // stay together for 8 seconds
 const BROKEN_MS = 4 * 1000; // stay broken apart for 4 seconds

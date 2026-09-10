@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import "./Header.css";
 import CTA from "./cta";
@@ -12,19 +12,29 @@ const POSTER_SRC = `${process.env.PUBLIC_URL}/header-poster.jpg`;
 
 const TITLE = "From HVAC Tech to Controls Engineer to Software Engineer";
 
-// Reveal one character at a time, left to right.
+// Reveal one character at a time, left to right (and hide them right to left).
 const sentence = {
-  hidden: {},
+  hidden: {
+    transition: {
+      staggerChildren: 0.02,
+      staggerDirection: -1,
+    },
+  },
   visible: {
     transition: {
       delayChildren: 0.15,
       staggerChildren: 0.045,
-      repeat: Infinity,
-      repeatDelay: 1.2,
-      repeatType: "mirror",
     },
   },
 };
+
+// How long to pause once the sentence is fully typed / fully cleared (ms).
+const HOLD_AFTER_TYPED = 1800;
+const HOLD_AFTER_CLEARED = 500;
+
+// Rough time (ms) for a full type-in / clear-out pass, based on the stagger.
+const TYPE_IN_MS = (0.15 + 0.045 * TITLE.length + 0.12) * 1000;
+const CLEAR_OUT_MS = 0.02 * TITLE.length * 1000 + 120;
 
 const letter = {
   hidden: { opacity: 0, filter: "blur(3px)" },
@@ -36,6 +46,21 @@ const letter = {
 };
 
 const Header = () => {
+  // Loop forever: type the sentence in, hold, clear it out, hold, repeat.
+  const [phase, setPhase] = useState("visible");
+
+  useEffect(() => {
+    const wait =
+      phase === "visible"
+        ? TYPE_IN_MS + HOLD_AFTER_TYPED
+        : CLEAR_OUT_MS + HOLD_AFTER_CLEARED;
+    const id = setTimeout(
+      () => setPhase((p) => (p === "visible" ? "hidden" : "visible")),
+      wait
+    );
+    return () => clearTimeout(id);
+  }, [phase]);
+
   return (
     <header>
       <video
@@ -56,12 +81,7 @@ const Header = () => {
             className="header_typed"
             variants={sentence}
             initial="hidden"
-            animate="visible"
-            transition={{
-              repeat: Infinity,
-              repeatType: "mirror",
-              repeatDelay: 1.2,
-            }}
+            animate={phase}
             aria-label={TITLE}
           >
             {TITLE.split("").map((char, index) => (
