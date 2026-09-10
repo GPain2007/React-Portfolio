@@ -128,3 +128,18 @@ header {
     display: none;
   }
 }
+
+/* ====================== Typed Title ======================== */
+
+.header_content h1.header_typed {
+  color: skyblue;
+  white-space: pre-wrap;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.header_content h1.header_typed .header_caret {
+  color: skyblue;
+  font-weight: 300;
+  margin-left: 0.05em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
+}
