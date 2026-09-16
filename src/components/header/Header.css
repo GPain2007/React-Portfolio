@@ -113,7 +113,15 @@ header {
 
 @media screen and (max-width: 1024px) {
   header {
-    height: 85vh;
+    height: 60vh;
+    min-height: 30rem;
+  }
+  .header_content h1 {
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+  }
+  .cta {
+    position: static;
+    margin-top: 1.5rem;
   }
 }
 
@@ -121,11 +129,23 @@ header {
 
 @media screen and (max-width: 600px) {
   header {
-    height: 100vh;
+    height: 65vh;
+    min-height: 26rem;
+  }
+  .header_content h1 {
+    font-size: clamp(1.3rem, 5.5vw, 1.8rem);
+  }
+  .header_content h1.header_typed {
+    font-size: clamp(1rem, 4.5vw, 1.4rem);
   }
   .header_socials,
   .scroll_down {
     display: none;
+  }
+  .header_video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 }
 
