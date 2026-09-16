@@ -1,0 +1,102 @@
+.particle_card {
+  position: relative;
+  min-height: 28rem;
+}
+
+.particle_card-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.particle_card-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.particle_card-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-white);
+  font-family: inherit;
+}
+
+.particle_card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-shadow: 0 0 1.2rem rgba(77, 181, 255, 0.6);
+}
+
+.particle_card-hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+.particle_card-content {
+  position: relative;
+  z-index: 2;
+  padding: 2.4rem 2rem;
+}
+
+.particle_card-content h3 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-primary);
+}
+
+.particle_card-back {
+  position: absolute;
+  top: 1rem;
+  left: 1.2rem;
+  background: transparent;
+  border: 1px solid var(--color-primary-var);
+  color: var(--color-primary);
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.particle_card-back:hover {
+  background: var(--color-primary-var);
+}
+
+/*====================Media Querie (Meduim Devices 'Tablets')===================*/
+
+@media screen and (max-width: 1024px) {
+  .particle_card {
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .particle_card-content {
+    padding: 2rem;
+  }
+}
+
+/*====================Media Querie (Small Devices 'Cellphones')===================*/
+
+@media screen and (max-width: 600px) {
+  .particle_card {
+    width: 100%;
+  }
+
+  .particle_card-content {
+    padding: 2rem 1rem;
+  }
+}

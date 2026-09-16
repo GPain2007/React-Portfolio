@@ -1,0 +1,82 @@
+.project_modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 30, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.project_modal {
+  position: relative;
+  background: var(--color-bg-var);
+  border: 1px solid var(--color-primary-var);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem 2rem;
+  max-width: 32rem;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.project_modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  padding: 0.4rem;
+  background: transparent;
+  color: var(--color-white);
+  font-size: 1.3rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.project_modal-close:hover {
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.project_modal-image {
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.project_modal-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 14rem;
+  background: var(--color-bg);
+  font-size: 3.5rem;
+  color: var(--color-primary);
+}
+
+.project_modal h3 {
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+}
+
+.project_modal p {
+  color: var(--color-light);
+  margin-bottom: 1.5rem;
+}
+
+.project_modal-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/*====================Media Querie (Small Devices 'Cellphones')===================*/
+
+@media screen and (max-width: 600px) {
+  .project_modal {
+    padding: 2.2rem 1.2rem 1.5rem;
+  }
+}

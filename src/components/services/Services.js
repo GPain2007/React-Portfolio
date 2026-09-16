@@ -2,6 +2,7 @@ import React from "react";
 import "./Services.css";
 
 import { AiOutlineCheck } from "react-icons/ai";
+import ServiceCard from "./ServiceCard";
 
 const Services = () => {
   return (
@@ -10,11 +11,7 @@ const Services = () => {
       <h2>Services</h2>
 
       <div className="container services_container">
-        <article className="service">
-          <div className="service_head">
-            <h3>Full-Stack Development</h3>
-          </div>
-
+        <ServiceCard title="Full-Stack Development" color="#4db5ff">
           <ul className="service_list">
             <li>
               <AiOutlineCheck className="service_list-icon" />
@@ -23,8 +20,7 @@ const Services = () => {
             <li>
               <AiOutlineCheck className="service_list-icon" />
               <p>
-                Designing and maintaining back-end services and APIs with
-                Python
+                Designing and maintaining back-end services and APIs with Python
               </p>
             </li>
             <li>
@@ -35,19 +31,15 @@ const Services = () => {
               </p>
             </li>
           </ul>
-        </article>
+        </ServiceCard>
         {/* END OF FULL-STACK DEVELOPMENT */}
-        <article className="service">
-          <div className="service_head">
-            <h3>Cloud, DevOps &amp; QA</h3>
-          </div>
-
+        <ServiceCard title="Cloud, DevOps & QA" color="#7c5cff">
           <ul className="service_list">
             <li>
               <AiOutlineCheck className="service_list-icon" />
               <p>
-                Deploying and troubleshooting applications on AWS and
-                Microsoft Azure
+                Deploying and troubleshooting applications on AWS and Microsoft
+                Azure
               </p>
             </li>
             <li>
@@ -65,13 +57,9 @@ const Services = () => {
               </p>
             </li>
           </ul>
-        </article>
+        </ServiceCard>
         {/* END OF CLOUD, DEVOPS & QA */}
-        <article className="service">
-          <div className="service_head">
-            <h3>AI-Enhanced Engineering</h3>
-          </div>
-
+        <ServiceCard title="AI-Enhanced Engineering" color="#4dffb5">
           <ul className="service_list">
             <li>
               <AiOutlineCheck className="service_list-icon" />
@@ -88,7 +76,7 @@ const Services = () => {
               </p>
             </li>
           </ul>
-        </article>
+        </ServiceCard>
         {/* END OF AI-ENHANCED ENGINEERING */}
       </div>
     </section>

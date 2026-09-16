@@ -1,67 +1,94 @@
-.portfolio_container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+.portfolio_hand {
+  position: relative;
+  min-height: 30rem;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 2rem;
 }
 
-.portfolio_item {
+.portfolio_card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -140px;
+  width: 280px;
   background: var(--color-bg-var);
   padding: 1.3rem;
-  border-radius: 2rem;
-  border: 1px solid transparent;
-  transition: var(--transition);
-}
-
-.portfolio_item:hover {
-  border-color: var(--color-primary);
-  background: transparent;
-}
-
-.portfolio_item-image {
   border-radius: 1.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35);
+  transition: box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.portfolio_card:hover,
+.portfolio_card:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 2rem 3.5rem rgba(0, 0, 0, 0.5);
+  outline: none;
+}
+
+.portfolio_card-image {
+  border-radius: 1rem;
   overflow: hidden;
 }
 
-.portfolio_item-placeholder {
+.portfolio_card-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 12rem;
+  height: 10rem;
   background: var(--color-bg);
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--color-primary);
 }
 
-.portfolio_item h3 {
-  margin: 1.2rem 0 1rem;
+.portfolio_card h3 {
+  margin: 1rem 0 0.6rem;
 }
 
-.portfolio_item-desc {
-  margin-bottom: 1.2rem;
-  font-size: 0.95rem;
+.portfolio_card-desc {
+  font-size: 0.9rem;
   color: var(--color-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.portfolio_item-cta {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+.portfolio_card-hint {
+  display: block;
+  margin-top: 0.9rem;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+/*====================Stacked layout (mobile: no fan, no overlap)===================*/
+
+.portfolio_hand-stacked {
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: unset;
+}
+
+.portfolio_hand-stacked .portfolio_card {
+  position: static;
+  margin-left: 0;
+  width: 100%;
+  max-width: 22rem;
 }
 
 /*====================Media Querie (Meduim Devices 'Tablets')===================*/
 
 @media screen and (max-width: 1024px) {
-  .portfolio_container {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.2rem;
+  .portfolio_hand {
+    min-height: 26rem;
   }
-}
 
-/*====================Media Querie (Small Devices 'Tablets')===================*/
-
-@media screen and (max-width: 600px) {
-  .portfolio_container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .portfolio_card {
+    width: 230px;
+    margin-left: -115px;
   }
 }

@@ -1,0 +1,134 @@
+.service_card {
+  position: relative;
+  background: var(--color-bg-var);
+  border-radius: 0 0 2rem 2rem;
+  border: 1px solid var(--color-primary);
+  min-height: 24rem;
+  overflow: hidden;
+  cursor: default;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.service_card-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.service_card-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.service_card-title-view {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-white);
+  font-family: inherit;
+  text-align: center;
+}
+
+.service_card-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-shadow: 0 0 1.2rem rgba(77, 181, 255, 0.6);
+}
+
+.service_card-hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+.service_card-body {
+  position: relative;
+  z-index: 1;
+  padding-top: 0.5rem;
+}
+
+.service_head {
+  background: var(--color-primary);
+  padding: 2rem;
+}
+
+.service_head h3 {
+  color: var(--color-bg);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.service_list {
+  padding: 3rem;
+}
+
+.service_list li {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.service_list-icon {
+  color: var(--color-primary);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.service_list p {
+  font-size: 0.9rem;
+}
+
+.service_card-back {
+  position: absolute;
+  top: 0.9rem;
+  left: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.service_card-back:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/*====================Media Querie (Meduim Devices 'Tablets')===================*/
+
+@media screen and (max-width: 1024px) {
+  .service_card {
+    min-height: 22rem;
+  }
+}
+
+/*====================Media Querie (Small Devices 'Cellphones')===================*/
+
+@media screen and (max-width: 600px) {
+  .service_card {
+    min-height: 20rem;
+  }
+}

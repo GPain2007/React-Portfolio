@@ -1,0 +1,101 @@
+.skill_scroll {
+  width: 100%;
+  max-width: 16rem;
+  margin: 0 auto;
+  color: var(--color-white);
+}
+
+.skill_scroll-viewport {
+  position: relative;
+  width: 100%;
+}
+
+.skill_scroll-list {
+  height: 3rem;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.skill_scroll-list::-webkit-scrollbar {
+  display: none;
+}
+
+.skill_scroll-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 3rem;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-white);
+  opacity: 0.35;
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.skill_scroll-item.is-active {
+  opacity: 1;
+  color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.skill_scroll-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0.9rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.skill_scroll-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--color-bg), transparent);
+}
+
+.skill_scroll-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--color-bg), transparent);
+}
+
+.skill_scroll-detail {
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: center;
+  column-gap: 0.4rem;
+  row-gap: 0.3rem;
+  padding: 0.4rem 0 0.2rem;
+}
+
+.skill_scroll-icon {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.skill_scroll-detail > small {
+  grid-column: 1;
+  grid-row: 1;
+  padding-left: 87px;
+}
+
+.skill_scroll-detail > p {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  text-align: center;
+  margin: 0;
+}
