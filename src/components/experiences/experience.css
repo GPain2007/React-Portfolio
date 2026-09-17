@@ -10,6 +10,21 @@
   width: 100%;
 }
 
+.job_history {
+  margin-top: 5rem;
+}
+
+.job_history h5 {
+  text-align: center;
+  color: var(--color-light);
+}
+
+.job_history h2 {
+  text-align: center;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
 /*====================Media Querie (Meduim Devices 'Tablets')===================*/
 
 @media screen and (max-width: 1024px) {

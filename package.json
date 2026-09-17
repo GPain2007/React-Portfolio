@@ -28,6 +28,12 @@
       "react-app/jest"
     ]
   },
+  "jest": {
+    "moduleNameMapper": {
+      "^three/examples/jsm/renderers/CSS3DRenderer\\.js$": "<rootDir>/src/__mocks__/three/examples/jsm/renderers/CSS3DRenderer.js"
+    },
+    "resetMocks": false
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -39,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "jest-canvas-mock": "^2.5.8"
   }
 }

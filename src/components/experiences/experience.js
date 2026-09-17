@@ -2,6 +2,7 @@ import React from "react";
 import "./experience.css";
 import ParticleCard from "./ParticleCard";
 import SkillScroll from "./SkillScroll";
+import JobCarousel from "./JobCarousel";
 
 const FRONTEND_SKILLS = [
   {
@@ -134,6 +135,77 @@ const DATABASE_SKILLS = [
   },
 ];
 
+const JOB_EXPERIENCE = [
+  {
+    role: "Software Engineer",
+    company: "SkipForward",
+    location: "Austin, TX",
+    period: "Apr 2026 – Present",
+    points: [
+      "Design, develop, test, and maintain scalable backend applications and software solutions using modern engineering practices.",
+      "Apply data structures, algorithms, object-oriented design, testing, debugging, and code review practices to create reliable, reusable systems.",
+      "Analyze complex technical problems, identify root causes, and implement solutions that improve application performance and scalability.",
+      "Integrate cloud technologies, APIs, analytics, automation, and AI-driven workflows while collaborating across engineering teams.",
+    ],
+  },
+  {
+    role: "Facilities Supervisor – HVAC Instrument & Controls",
+    company: "University of Texas at Austin",
+    location: "Austin, TX",
+    period: "2025 – Present",
+    points: [
+      "Monitor and optimize multi-vendor networked automation systems including Johnson Controls Metasys, Trane, and Honeywell.",
+      "Review and modify control sequences, troubleshoot communications, support commissioning, and optimize system performance.",
+      "Coordinate with facilities staff, IT, and vendors on automation infrastructure, networking, and technical integrations.",
+      "Provide Metasys and Reliant Controls training and lead team members in HVAC and instrumentation/controls diagnostics and repair.",
+    ],
+  },
+  {
+    role: "Software Engineer / Technology Specialist",
+    company: "EcoRise",
+    location: "Austin, TX",
+    period: "Jan 2023 – Aug 2025",
+    points: [
+      "Designed, debugged, and implemented Python- and React-based applications, dashboards, and data visualization solutions.",
+      "Developed APIs, analytics tools, ETL workflows, and cloud integrations using Plotly, ArcGIS, AWS, Azure, Git/GitHub, and Jupyter.",
+      "Performed root-cause analysis across web applications, deployments, user access, cloud services, and system performance issues.",
+      "Created technical documentation, supported stakeholders, and communicated technical concepts to faculty, staff, students, and organizational users.",
+    ],
+  },
+  {
+    role: "Open Source Software Engineer",
+    company: "Mozilla",
+    location: "Austin, TX",
+    period: "Aug 2022 – Present",
+    points: [
+      "Resolved PerfCompare issues using React, React Native, Material UI, Python, code tracing, state analysis, and API integration testing.",
+      "Improved FoxPuppet browser automation using Python and Selenium WebDriver, refining selectors, waits, error handling, and session management.",
+      "Analyzed stack traces and runtime behavior to improve application stability, performance, automation reliability, and maintainability.",
+    ],
+  },
+  {
+    role: "Junior Software Engineer",
+    company: "Softkodes",
+    location: "Effurun, Nigeria",
+    period: "Jul 2022 – Jan 2023",
+    points: [
+      "Developed modular, production-ready React, Node.js, and Python web and backend applications in an Agile environment.",
+      "Collaborated with analysts, architects, and QA teams to design, test, debug, and deliver end-to-end software solutions.",
+    ],
+  },
+  {
+    role: "Chief Building Engineer",
+    company: "CBRE",
+    location: "Austin, TX",
+    period: "2014 – 2020",
+    points: [
+      "Led building automation installation, programming, diagnostics, and maintenance across Class A commercial facilities.",
+      "Managed engineering teams, emergency response, preventive maintenance, vendor coordination, and controls upgrades.",
+      "Applied systems troubleshooting, networking, technical leadership, and root-cause analysis in operational environments.",
+    ],
+  },
+];
+
 const Experience = () => {
   return (
     <section id="experience">
@@ -162,6 +234,12 @@ const Experience = () => {
             <SkillScroll skills={DATABASE_SKILLS} />
           </div>
         </ParticleCard>
+      </div>
+
+      <div className="job_history">
+        <h5>Where I've Worked</h5>
+        <h2>Job Experience</h2>
+        <JobCarousel jobs={JOB_EXPERIENCE} />
       </div>
     </section>
   );
