@@ -11,6 +11,11 @@
   gap: 1.2rem;
 }
 
+.contact_carousel {
+  position: relative;
+  min-height: 12rem;
+}
+
 .contact_option {
   background: var(--color-bg-var);
   padding: 1.2rem;
@@ -36,10 +41,53 @@
   font-size: 0.8rem;
 }
 
+.contact_carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.contact_dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-bg-var);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.contact_dot.active {
+  background: var(--color-primary);
+  transform: scale(1.2);
+}
+
+.contact_form-wrapper {
+  position: relative;
+}
+
 form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+}
+
+.contact_field {
+  position: relative;
+}
+
+.contact_field-outline {
+  position: absolute;
+  inset: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.contact_field-outline rect {
+  stroke: var(--color-primary);
+  stroke-width: 1.5;
 }
 
 input,
@@ -48,7 +96,7 @@ textarea {
   padding: 1.5rem;
   border-radius: 0.5;
   background: transparent;
-  border: 2px solid var(--color-primary-var);
+  border: 2px solid transparent;
   resize: none;
   color: var(--color-white);
 }

@@ -82,6 +82,7 @@
   .particle_card {
     width: 80%;
     margin: 0 auto;
+    min-height: 24rem;
   }
 
   .particle_card-content {
@@ -94,9 +95,14 @@
 @media screen and (max-width: 600px) {
   .particle_card {
     width: 100%;
+    min-height: 21rem;
   }
 
   .particle_card-content {
-    padding: 2rem 1rem;
+    padding: 1.6rem 1rem;
+  }
+
+  .particle_card-content h3 {
+    margin-bottom: 1.5rem;
   }
 }

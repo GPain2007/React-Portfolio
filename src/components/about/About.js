@@ -39,6 +39,9 @@ const About = () => {
     <section id="about">
       <div className="container about_container">
         <div className="about_content">
+          <h1 className="about_title">
+            About <span className="about_title-shake">Me</span>
+          </h1>
           <p className={`about_paragraph ${broken ? "is-broken" : ""}`}>
             {words.map((w, i) => (
               <span

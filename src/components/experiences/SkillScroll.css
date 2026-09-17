@@ -88,9 +88,9 @@
 }
 
 .skill_scroll-detail > small {
-  grid-column: 1;
+  grid-column: 1 / -1;
   grid-row: 1;
-  padding-left: 87px;
+  text-align: center;
 }
 
 .skill_scroll-detail > p {

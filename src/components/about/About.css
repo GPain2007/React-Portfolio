@@ -1,11 +1,50 @@
+/*==================== Mobile-first base styles (small screens) ===================*/
+
 .about_container {
   display: flex;
-  gap: 15%;
+  flex-direction: column;
+  gap: 0;
+}
+
+.about_content {
+  text-align: center;
 }
 
 .about_content p {
-  margin: 2rem 0 2.6rem;
-  color: var(--color-light);
+  margin: 1.5rem 0;
+  color: var(--color-primary-var);
+}
+
+.about_title {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--color-primary);
+}
+
+.about_title-shake {
+  display: inline-block;
+  animation: about-shake 0.3s infinite;
+}
+
+@keyframes about-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about_title-shake {
+    animation: none;
+  }
 }
 
 /*==================== "Break apart / reform" paragraph animation ===================*/
@@ -16,7 +55,7 @@
     letter-spacing 1.4s ease,
     filter 1.4s ease;
 
-  font-size: 50px;
+  font-size: 1.1rem;
 }
 
 .about_paragraph.is-broken {
@@ -42,16 +81,11 @@
   }
 }
 
-/*====================Media Querie (Meduim Devices 'Tablets')===================*/
+/*====================Media Querie (Medium Devices 'Tablets')===================*/
 
-@media screen and (max-width: 1024px) {
-  .about_container {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .about_me {
-    width: 50%;
-    margin: 2rem auto 4rem;
+@media screen and (min-width: 601px) {
+  .about_title {
+    font-size: 3rem;
   }
   .about_content p {
     margin: 1rem 0 1.5rem;
@@ -61,24 +95,23 @@
   }
 }
 
-/*====================Media Querie (Small Devices 'Tablets')===================*/
+/*====================Media Querie (Large Devices 'Desktops')===================*/
 
-@media screen and (max-width: 600px) {
-  .about_me {
-    width: 65%;
-    margin: 0 auto 3rem;
-  }
-  .about_cards {
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+@media screen and (min-width: 1025px) {
+  .about_container {
+    flex-direction: row;
+    gap: 15%;
   }
   .about_content {
-    text-align: center;
+    text-align: left;
   }
   .about_content p {
-    margin: 1.5rem 0;
+    margin: 2rem 0 2.6rem;
+  }
+  .about_title {
+    font-size: 72px;
   }
   .about_paragraph {
-    font-size: 1.1rem;
+    font-size: 50px;
   }
 }

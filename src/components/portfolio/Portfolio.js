@@ -33,6 +33,22 @@ const data = [
     github: "https://github.com/mozilla/FoxPuppet",
     demo: null,
   },
+  {
+    id: 4,
+    image: null,
+    title: "New Project",
+    description: "Description for the new project goes here.",
+    github: null,
+    demo: null,
+  },
+  {
+    id: 5,
+    image: null,
+    title: "Another Project",
+    description: "Description for another project goes here.",
+    github: null,
+    demo: null,
+  },
 ];
 
 // Rotation/spread applied per card, step away from the center card.
