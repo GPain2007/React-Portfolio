@@ -6,6 +6,7 @@ import { AiOutlinePhone } from "react-icons/ai";
 import { AiOutlineWhatsApp } from "react-icons/ai";
 
 import emailjs from "emailjs-com";
+import { trackEvent } from "../../utils/analytics";
 
 const CONTACT_OPTIONS = [
   {
@@ -37,9 +38,19 @@ const CONTACT_OPTIONS = [
 const CAROUSEL_MS = 4 * 1000;
 
 const FORM_FIELDS = [
-  { element: "input", name: "name", type: "text", placeholder: "Your Full Name" },
+  {
+    element: "input",
+    name: "name",
+    type: "text",
+    placeholder: "Your Full Name",
+  },
   { element: "input", name: "email", type: "email", placeholder: "Your Email" },
-  { element: "textarea", name: "message", rows: 7, placeholder: "Your Message" },
+  {
+    element: "textarea",
+    name: "message",
+    rows: 7,
+    placeholder: "Your Message",
+  },
 ];
 
 const FIELD_DRAW_DURATION = 1;
@@ -64,15 +75,17 @@ const Contact = () => {
         "service_w9c1bf5",
         "template_lc062vq",
         form.current,
-        "AqIYHpELT_gRn9Lne"
+        "AqIYHpELT_gRn9Lne",
       )
       .then(
         (result) => {
           console.log(result.text);
+          trackEvent("contact_form_submit", { status: "success" });
         },
         (error) => {
           console.log(error.text);
-        }
+          trackEvent("contact_form_submit", { status: "error" });
+        },
       );
     e.target.reset();
   };
