@@ -8,6 +8,7 @@ import {
 import { BsPauseFill, BsPlayFill, BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import JobModal from "./JobModal";
 import "./JobCarousel.css";
+import { createRenderLoop, observeSize } from "../../utils/renderLoop";
 
 const AUTO_ROTATE_SPEED = 0.28; // radians per second
 const DRAG_SENSITIVITY = 0.012; // radians per pixel
@@ -162,8 +163,6 @@ const JobCarousel = ({ jobs }) => {
       modalOpen: false,
     };
 
-    const clock = new THREE.Clock();
-    let frameId;
     let lastReportedIndex = -1;
 
     const closestIndexToFront = () => {
@@ -190,9 +189,8 @@ const JobCarousel = ({ jobs }) => {
       state.resumeAt = performance.now() + RESUME_DELAY;
     };
 
-    const animate = () => {
-      frameId = requestAnimationFrame(animate);
-      const delta = Math.min(clock.getDelta(), 0.1);
+    // Runs only while the carousel is on screen (see utils/renderLoop.js).
+    const animate = (delta) => {
 
       if (state.snapTarget !== null) {
         const diff = state.snapTarget - group.rotation.y;
@@ -252,10 +250,8 @@ const JobCarousel = ({ jobs }) => {
 
       renderer.render(scene, camera);
     };
-    animate();
-
-    const handleResize = () => layout();
-    window.addEventListener("resize", handleResize);
+    const loop = createRenderLoop(mount, animate);
+    const stopObservingSize = observeSize(mount, () => layout());
 
     const handlePointerEnter = () => {
       state.hovering = true;
@@ -334,8 +330,8 @@ const JobCarousel = ({ jobs }) => {
     };
 
     return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", handleResize);
+      loop.stop();
+      stopObservingSize();
       mount.removeEventListener("pointerenter", handlePointerEnter);
       mount.removeEventListener("pointerleave", handlePointerLeave);
       mount.removeEventListener("pointerdown", handlePointerDown);

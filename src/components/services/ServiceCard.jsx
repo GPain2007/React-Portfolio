@@ -8,6 +8,12 @@ import {
 } from "motion/react";
 import * as THREE from "three";
 import "./ServiceCard.css";
+import {
+  createRenderLoop,
+  isTouchDevice,
+  maxPixelRatio,
+  observeSize,
+} from "../../utils/renderLoop";
 
 // Soft round sprite so the halo particles read as glowing dots, not squares.
 const buildParticleTexture = () => {
@@ -66,15 +72,15 @@ const ServiceCard = ({ title, color = "#4db5ff", children }) => {
     const mount = mountRef.current;
     if (!mount) return;
 
-    const width = mount.clientWidth;
-    const height = mount.clientHeight;
+    const width = mount.clientWidth || 1;
+    const height = mount.clientHeight || 1;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.z = 4;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: !isTouchDevice(), alpha: true });
+    renderer.setPixelRatio(maxPixelRatio());
     renderer.setSize(width, height);
     mount.appendChild(renderer.domElement);
 
@@ -120,13 +126,9 @@ const ServiceCard = ({ title, color = "#4db5ff", children }) => {
     const points = new THREE.Points(particleGeometry, particleMaterial);
     scene.add(points);
 
-    let frameId;
     let time = 0;
-    const clock = new THREE.Clock();
 
-    const animate = () => {
-      frameId = requestAnimationFrame(animate);
-      const delta = clock.getDelta();
+    const animate = (delta) => {
       time += delta;
 
       const hover = hoveringRef.current;
@@ -151,20 +153,17 @@ const ServiceCard = ({ title, color = "#4db5ff", children }) => {
 
       renderer.render(scene, camera);
     };
-    animate();
+    const loop = createRenderLoop(mount, animate);
 
-    const handleResize = () => {
-      const w = mount.clientWidth;
-      const h = mount.clientHeight;
+    const stopObservingSize = observeSize(mount, (w, h) => {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", handleResize);
+    });
 
     return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", handleResize);
+      loop.stop();
+      stopObservingSize();
       wireGeometry.dispose();
       wireMaterial.dispose();
       particleGeometry.dispose();
@@ -178,25 +177,31 @@ const ServiceCard = ({ title, color = "#4db5ff", children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleMouseMove = (event) => {
+  // Tilt and hover are for mice only: on phones a tap fires mouse events
+  // with no matching "leave", which left cards stuck tilted and enlarged.
+  const handlePointerMove = (event) => {
+    if (event.pointerType !== "mouse") return;
     const rect = cardRef.current.getBoundingClientRect();
     mouseX.set((event.clientX - rect.left) / rect.width);
     mouseY.set((event.clientY - rect.top) / rect.height);
   };
 
-  const handleMouseLeave = () => {
+  const handlePointerLeave = () => {
     setHovering(false);
     mouseX.set(0.5);
     mouseY.set(0.5);
   };
 
+  // Blurring a whole card while it animates is expensive on phone GPUs.
+  const softBlur = !isTouchDevice();
+
   return (
     <motion.article
       ref={cardRef}
       className="service_card"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={handleMouseLeave}
+      onPointerMove={handlePointerMove}
+      onPointerEnter={(event) => event.pointerType === "mouse" && setHovering(true)}
+      onPointerLeave={handlePointerLeave}
       style={{ rotateX, rotateY, transformPerspective: 1200 }}
       animate={{
         scale: hovering ? 1.06 : 1,
@@ -228,9 +233,9 @@ const ServiceCard = ({ title, color = "#4db5ff", children }) => {
           <motion.div
             key="content-view"
             className="service_card-body"
-            initial={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.92, filter: "blur(6px)" }}
+            initial={{ opacity: 0, scale: 0.92, ...(softBlur && { filter: "blur(6px)" }) }}
+            animate={{ opacity: 1, scale: 1, ...(softBlur && { filter: "blur(0px)" }) }}
+            exit={{ opacity: 0, scale: 0.92, ...(softBlur && { filter: "blur(6px)" }) }}
             transition={{ duration: 0.45, ease: "easeOut" }}
           >
             <button

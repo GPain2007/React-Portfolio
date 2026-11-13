@@ -67,6 +67,7 @@ If you're extending this repo with Claude Code, the same loop applies: make the 
 | --- | --- |
 | [src/components/portfolio/Portfolio.test.js](../src/components/portfolio/Portfolio.test.js) | Project data is valid (unique ids/titles, real descriptions, no placeholder projects, https links only); one card per project; click or Enter opens the preview and Escape closes it; the preview hides the GitHub button for private repos and lists technologies. |
 | [src/components/nav/Nav.test.js](../src/components/nav/Nav.test.js) | Every nav link is labelled and points at a section that exists on the page; clicking marks it active and sends a `nav_click` analytics event. |
+| [src/utils/renderLoop.test.js](../src/utils/renderLoop.test.js) | 3D render loop pauses off screen and while the tab is hidden, caps time steps after a stall, ignores same-size resize events, fits the camera to narrow cards, and caps pixel ratio on touch devices. |
 | [src/utils/analytics.test.js](../src/utils/analytics.test.js) | `trackEvent` is a no-op without `gtag` and forwards name/params when it is loaded. |
 
 ## Using Claude Code on this project

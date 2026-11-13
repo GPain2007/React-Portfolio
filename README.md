@@ -120,6 +120,8 @@ If a scheduled run fails, the workflow opens a "Weekly CI check failed" issue (o
 
 **Motion.** Used where CSS can't do the job: exit animations before unmount (`AnimatePresence`), staggered letters in the headline, and animating to `height: auto`.
 
+**Performance on phones.** All 3D scenes run through `src/utils/renderLoop.js`: they only animate while on screen and the tab is visible, re-size with a `ResizeObserver` (not on window `resize`, which phones fire while scrolling), cap pixel density at 1.5x on touch screens, and skip mouse-only hover/tilt effects for touch.
+
 **Mobile first.** The 3D components size themselves from their container's real width, and every layout collapses to one column at `1024px` and tightens at `600px`. Nothing is hidden on small screens.
 
 **SEO.** `public/index.html` has a real title and description, a canonical URL, Open Graph and Twitter tags, and `Person` structured data. `public/sitemap.xml` and `robots.txt` point crawlers at the homepage.
@@ -143,4 +145,5 @@ Open problems are tracked in [GitHub Issues](https://github.com/GPain2007/React-
 
 This log is kept up to date by a weekly review.
 
+- **2026-11-13:** Fixed stutter and glitching on phones in the Experience and Services sections. The 3D scenes pause when off screen, when the tab is hidden, and once a skill sphere has exploded. They use lower pixel density and fewer particles on phones, re-size only when their card actually changes size, and fit the sphere to narrow cards. Taps no longer count as a hover that never ends; rapid taps can't overlap transitions. The skill list is now a three-row picker that doesn't fight page scrolling. Shared helpers live in `src/utils/renderLoop.js`.
 - **2026-11-13:** README rewritten. Placeholder portfolio projects replaced with real ones (GotNext, HBM Flower City, the lawn service site, Secure Notes API, Sauce Demo tests), project data moved to `projects.js`, project tags added to the preview, the GitHub button hidden for private repos. Nav fixed (removed the link to a nonexistent Testimonials section, added Portfolio, added labels). New tests for Portfolio, Nav and analytics. GitHub Actions CI added.
