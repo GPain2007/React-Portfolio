@@ -1,0 +1,128 @@
+name: Deploy to Hostinger
+
+# Runs when a pull request is merged into main (a merge is a push to main),
+# or by hand from the Actions tab. The build is tested first; the upload to
+# Hostinger waits for approval on the "production" environment.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deploys at once, and never cancel one halfway through an upload.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  test-and-build:
+    name: Test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run tests
+        run: npx react-scripts test --watchAll=false --ci
+        env:
+          CI: true
+
+      - name: Build
+        # CI=false keeps known lint warnings (issue #11) from failing the build.
+        # Real compile errors still fail it.
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Check build output
+        run: |
+          set -e
+          test -f build/index.html || { echo "::error::build/index.html is missing"; exit 1; }
+          ls build/static/js/main.*.js >/dev/null 2>&1 || { echo "::error::No main JS bundle in build/static/js"; exit 1; }
+          ls build/static/media/Govnor_Payne_Software_Engineering_Resume*.pdf >/dev/null 2>&1 || { echo "::error::Résumé PDF missing from build"; exit 1; }
+          echo "### Build output" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          du -sh build build/static/js build/static/css build/static/media 2>/dev/null >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-build
+          path: build/
+          retention-days: 14
+
+  deploy:
+    name: Upload to Hostinger
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Add yourself as a required reviewer on this environment
+    # (Settings → Environments → production) so each deploy waits for approval.
+    environment:
+      name: production
+      url: https://gpayneportfolio.com
+    steps:
+      - name: Check Hostinger secrets are set
+        env:
+          FTP_SERVER: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+        run: |
+          missing=""
+          [ -n "$FTP_SERVER" ]   || missing="$missing HOSTINGER_FTP_SERVER"
+          [ -n "$FTP_USERNAME" ] || missing="$missing HOSTINGER_FTP_USERNAME"
+          [ -n "$FTP_PASSWORD" ] || missing="$missing HOSTINGER_FTP_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing. Add them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-build
+          path: build/
+
+      - name: Upload build to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          # Encrypted FTPS by default. If Hostinger refuses the TLS handshake,
+          # set the repository variable HOSTINGER_FTP_PROTOCOL to "ftp".
+          protocol: ${{ vars.HOSTINGER_FTP_PROTOCOL || 'ftps' }}
+          port: ${{ vars.HOSTINGER_FTP_PORT || 21 }}
+          local-dir: ./build/
+          # Folder on the server that holds the live site, relative to the FTP
+          # login's home folder. Must end in "/". Set the repository variable
+          # HOSTINGER_SERVER_DIR if your FTP account opens inside public_html
+          # already (then use "./").
+          server-dir: ${{ vars.HOSTINGER_SERVER_DIR || 'public_html/' }}
+          # Only changed files are uploaded. The action keeps a record
+          # (.ftp-deploy-sync-state.json) and on later runs deletes files it
+          # uploaded before that are no longer in the build. Files it never
+          # uploaded (anything put there by hand) are left alone.
+
+      - name: Check the live site
+        run: |
+          set -e
+          sleep 10
+          code=$(curl -s -o page.html -w '%{http_code}' https://gpayneportfolio.com/)
+          echo "Homepage returned HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::Live site returned HTTP $code"; exit 1; }
+          bundle=$(ls build/static/js/main.*.js | xargs -n1 basename)
+          if grep -q "$bundle" page.html; then
+            echo "Live site is serving the new build ($bundle)."
+          else
+            echo "::warning::Live homepage doesn't reference $bundle yet. A cache may still be serving the old page, or server-dir points at the wrong folder."
+          fi
