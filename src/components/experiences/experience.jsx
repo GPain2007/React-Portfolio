@@ -137,15 +137,14 @@ const DATABASE_SKILLS = [
 
 const JOB_EXPERIENCE = [
   {
-    role: "Software Engineer",
+    role: "Software Engineer (Contract)",
     company: "SkipForward",
     location: "Austin, TX",
     period: "Apr 2026 – Present",
     points: [
-      "Design, develop, test, and maintain scalable backend applications and software solutions using modern engineering practices.",
-      "Apply data structures, algorithms, object-oriented design, testing, debugging, and code review practices to create reliable, reusable systems.",
-      "Analyze complex technical problems, identify root causes, and implement solutions that improve application performance and scalability.",
-      "Integrate cloud technologies, APIs, analytics, automation, and AI-driven workflows while collaborating across engineering teams.",
+      "Develop scalable Python backend applications and automation solutions for AI integration with email and PR system, with increase response time by 92% in most systems.",
+      "Integrate cloud technologies, REST APIs, analytics, and AI-driven workflows into production systems.",
+      "Collaborate across engineering teams to deliver reliable, maintainable software through code review and testing.",
     ],
   },
   {
