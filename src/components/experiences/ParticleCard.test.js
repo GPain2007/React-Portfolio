@@ -49,4 +49,17 @@ describe("ParticleCard", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("Skill list")).not.toBeInTheDocument();
   });
+
+  test("a quick double tap doesn't start overlapping transitions", async () => {
+    render(<ParticleCard title="Frontend Development">Skill list</ParticleCard>);
+
+    const prompt = screen.getByRole("button", { name: /Frontend Development/i });
+    fireEvent.click(prompt);
+    fireEvent.click(prompt);
+
+    expect(await screen.findByText("Skill list", {}, { timeout: 3000 })).toBeInTheDocument();
+    // Still showing the content (a second transition would have flipped it back).
+    await new Promise((r) => setTimeout(r, 700));
+    expect(screen.getByText("Skill list")).toBeInTheDocument();
+  });
 });

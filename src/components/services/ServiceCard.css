@@ -148,3 +148,10 @@
     padding: 1.75rem 1.25rem;
   }
 }
+
+/* Taps fire immediately and a quick second tap doesn't zoom the page. */
+.service_card-title-view,
+.service_card-back {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

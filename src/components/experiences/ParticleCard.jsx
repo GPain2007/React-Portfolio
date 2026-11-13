@@ -2,6 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import * as THREE from "three";
 import "./ParticleCard.css";
+import {
+  createRenderLoop,
+  fitDistance,
+  isTouchDevice,
+  maxPixelRatio,
+  observeSize,
+} from "../../utils/renderLoop";
 
 // Builds a soft round sprite so points read as glowing dots instead of hard squares.
 const buildParticleTexture = () => {
@@ -47,8 +54,14 @@ const fibonacciSphere = (count, radius) => {
   return points;
 };
 
-const PARTICLE_COUNT = 900;
 const SPHERE_RADIUS = 1.6;
+const CAMERA_FOV = 50;
+// Fewer points on phones: the sphere still reads as a dense cloud at that
+// size, and the per-frame position update is half the work.
+const particleCount = () => (isTouchDevice() ? 450 : 900);
+
+// How long the explode animation runs before the content replaces it.
+export const MATERIALIZE_MS = 550;
 
 const ParticleCard = ({ title, color = "#4db5ff", children }) => {
   const mountRef = useRef(null);
@@ -59,20 +72,29 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
   });
 
   const [materialized, setMaterialized] = useState(false);
+  // True from the tap until the sphere/content swap has finished, so rapid
+  // double taps can't start a second, overlapping transition.
+  const busyRef = useRef(false);
+  const timerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
 
-    const width = mount.clientWidth;
-    const height = mount.clientHeight;
+    const width = mount.clientWidth || 1;
+    const height = mount.clientHeight || 1;
+    const PARTICLE_COUNT = particleCount();
+    const touch = isTouchDevice();
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    camera.position.z = 4;
+    const camera = new THREE.PerspectiveCamera(CAMERA_FOV, width / height, 0.1, 100);
+    camera.position.z = fitDistance(SPHERE_RADIUS, CAMERA_FOV, width / height);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Antialiasing does nothing for soft round sprites; skip it on phones.
+    const renderer = new THREE.WebGLRenderer({ antialias: !touch, alpha: true });
+    renderer.setPixelRatio(maxPixelRatio());
     renderer.setSize(width, height);
     mount.appendChild(renderer.domElement);
 
@@ -109,18 +131,23 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    let frameId;
     let time = 0;
     let transitionProgress = 0; // 0 = sphere, 1 = fully exploded/hidden
+    let hiddenFrameDrawn = false;
 
-    const clock = new THREE.Clock();
-
-    const animate = () => {
-      frameId = requestAnimationFrame(animate);
-      const delta = clock.getDelta();
+    const animate = (delta) => {
       time += delta;
 
       const { hovering, materializing, dematerializing } = stateRef.current;
+
+      // Once the sphere has fully exploded the content covers it: draw one
+      // last (empty) frame, then do no work until it reforms.
+      if (materializing && transitionProgress === 1) {
+        if (hiddenFrameDrawn) return;
+        hiddenFrameDrawn = true;
+      } else {
+        hiddenFrameDrawn = false;
+      }
 
       // Drive the explode/reform transition.
       const transitionSpeed = 2.6;
@@ -170,16 +197,14 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
 
       renderer.render(scene, camera);
     };
-    animate();
+    const loop = createRenderLoop(mount, animate);
 
-    const handleResize = () => {
-      const w = mount.clientWidth;
-      const h = mount.clientHeight;
+    const stopObservingSize = observeSize(mount, (w, h) => {
       camera.aspect = w / h;
+      camera.position.z = fitDistance(SPHERE_RADIUS, CAMERA_FOV, w / h);
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", handleResize);
+    });
 
     mountRef.current._particleApi = {
       setHovering: (val) => {
@@ -196,8 +221,8 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
     };
 
     return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", handleResize);
+      loop.stop();
+      stopObservingSize();
       geometry.dispose();
       material.dispose();
       material.map?.dispose();
@@ -209,32 +234,50 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleMouseEnter = () => {
-    mountRef.current?._particleApi?.setHovering(true);
+  // Hover effects are for mice only. On a phone a tap fires mouseenter with
+  // no matching mouseleave, which left spheres spinning fast and jittering.
+  const handlePointerEnter = (event) => {
+    if (event.pointerType === "mouse") {
+      mountRef.current?._particleApi?.setHovering(true);
+    }
   };
 
-  const handleMouseLeave = () => {
+  const handlePointerLeave = () => {
     mountRef.current?._particleApi?.setHovering(false);
   };
 
   const handleMaterialize = () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    mountRef.current?._particleApi?.setHovering(false);
     mountRef.current?._particleApi?.startMaterialize();
-    setTimeout(() => setMaterialized(true), 550);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setMaterialized(true);
+      busyRef.current = false;
+    }, MATERIALIZE_MS);
   };
 
   const handleDematerialize = () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setMaterialized(false);
     // Let the content fade out first, then reform the sphere.
-    setTimeout(() => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
       mountRef.current?._particleApi?.startDematerialize();
+      busyRef.current = false;
     }, 50);
   };
+
+  // Blurring a whole card while it animates is expensive on phone GPUs.
+  const softBlur = !isTouchDevice();
 
   return (
     <div
       className="particle_card"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <div ref={mountRef} className="particle_card-canvas" />
 
@@ -257,9 +300,9 @@ const ParticleCard = ({ title, color = "#4db5ff", children }) => {
           <motion.div
             key="materialized-content"
             className="particle_card-content"
-            initial={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.9, filter: "blur(6px)" }}
+            initial={{ opacity: 0, scale: 0.9, ...(softBlur && { filter: "blur(6px)" }) }}
+            animate={{ opacity: 1, scale: 1, ...(softBlur && { filter: "blur(0px)" }) }}
+            exit={{ opacity: 0, scale: 0.9, ...(softBlur && { filter: "blur(6px)" }) }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
             <button

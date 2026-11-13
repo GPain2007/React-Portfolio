@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-// import { BsPatchCheckFill } from "react-icons/bs";
 import "./SkillScroll.css";
 
-const ITEM_HEIGHT = 48; // px — must match .skill_scroll-item height in SkillScroll.css
+// Fallback row height (px) for when the DOM can't be measured (e.g. tests).
+// The real height is read from the rendered rows, because `3rem` is not
+// always 48px (the root font size can differ on phones), and a wrong value
+// made the highlighted skill drift away from the one in the middle.
+const FALLBACK_ITEM_HEIGHT = 48;
+
+// How long scrolling must pause before we treat it as settled.
+const SETTLE_MS = 100;
 
 const SkillScroll = ({ skills }) => {
   const listRef = useRef(null);
@@ -11,27 +17,45 @@ const SkillScroll = ({ skills }) => {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const activeIndexRef = useRef(0);
+
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   useEffect(() => () => clearTimeout(scrollSettleTimeout.current), []);
 
-  const syncActiveIndexToScroll = () => {
-    const list = listRef.current;
-    if (!list) return;
-    const index = Math.round(list.scrollTop / ITEM_HEIGHT);
-    const clamped = Math.min(Math.max(index, 0), skills.length - 1);
-    setActiveIndex(clamped);
+  const itemHeight = () => {
+    const first = listRef.current?.querySelector(".skill_scroll-item");
+    return first?.offsetHeight || FALLBACK_ITEM_HEIGHT;
   };
 
+  const indexForScroll = () => {
+    const list = listRef.current;
+    if (!list) return activeIndexRef.current;
+    const index = Math.round(list.scrollTop / itemHeight());
+    return Math.min(Math.max(index, 0), skills.length - 1);
+  };
+
+  // Only react once scrolling has settled, and only close the details if the
+  // centered skill actually changed. Closing on every scroll event (including
+  // the smooth scroll we start ourselves, and iOS momentum) made the panel
+  // snap shut right after it opened.
   const handleScroll = () => {
-    setIsOpen(false);
     clearTimeout(scrollSettleTimeout.current);
-    scrollSettleTimeout.current = setTimeout(syncActiveIndexToScroll, 80);
+    scrollSettleTimeout.current = setTimeout(() => {
+      const index = indexForScroll();
+      if (index !== activeIndexRef.current) {
+        setActiveIndex(index);
+        setIsOpen(false);
+      }
+    }, SETTLE_MS);
   };
 
   const handleItemClick = (index) => {
     if (index !== activeIndex) {
       listRef.current?.scrollTo({
-        top: index * ITEM_HEIGHT,
+        top: index * itemHeight(),
         behavior: "smooth",
       });
       setActiveIndex(index);
