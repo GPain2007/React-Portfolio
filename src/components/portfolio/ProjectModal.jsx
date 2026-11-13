@@ -4,7 +4,7 @@ import { AiFillGithub, AiOutlineClose } from "react-icons/ai";
 import "./ProjectModal.css";
 
 const ProjectModal = ({ project, onClose }) => {
-  const { image, title, description, github, demo } = project;
+  const { image, title, description, tags = [], github, demo } = project;
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -57,10 +57,22 @@ const ProjectModal = ({ project, onClose }) => {
         <h3>{title}</h3>
         <p>{description}</p>
 
+        {tags.length > 0 && (
+          <ul className="project_modal-tags" aria-label="Technologies">
+            {tags.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+        )}
+
         <div className="project_modal-cta">
-          <a href={github} className="btn" target="_blank" rel="noreferrer">
-            Github
-          </a>
+          {github ? (
+            <a href={github} className="btn" target="_blank" rel="noreferrer">
+              Github
+            </a>
+          ) : (
+            <span className="project_modal-private">Private repository</span>
+          )}
           {demo && (
             <a
               href={demo}

@@ -1,168 +1,146 @@
 # Govnor Payne — Portfolio
 
-A single-page React portfolio (bootstrapped with [Create React App](https://github.com/facebook/create-react-app)) built around two libraries that do the heavy lifting for its visuals: **[three.js](https://threejs.org/)** for 3D/WebGL scenes and **[motion](https://motion.dev/)** (the React bindings formerly shipped as `framer-motion`) for everything else that moves. This document explains where and why each is used, how the site was made to work mobile-first, and — since most of it was recent, test-driven work — how the test suite around these libraries is built and why each piece exists.
+This is my portfolio and my introduction to the web development and software engineering world. From HVAC, to Controls, to Software Engineering, and everything in between.
 
-## Table of contents
+[![CI](https://github.com/GPain2007/React-Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/GPain2007/React-Portfolio/actions/workflows/ci.yml)
 
-- [Three.js in this project](#threejs-in-this-project)
-- [Motion in this project](#motion-in-this-project)
-- [Mobile-first approach](#mobile-first-approach)
-- [Google Analytics](#google-analytics)
-- [SEO](#seo)
-- [Testing Three.js and Motion (and why it's set up this way)](#testing-threejs-and-motion-and-why-its-set-up-this-way)
-- [Using Claude Code on this project](#using-claude-code-on-this-project)
-- [Available scripts](#available-scripts)
+**Live site:** [gpayneportfolio.com](https://gpayneportfolio.com)
 
-## Three.js in this project
+## The path here
 
-Three.js renders real 3D scenes into a `<canvas>` via WebGL (or, for one component, keeps a 3D transform in sync with plain DOM elements). It's used in three places, each solving a different problem:
+| Stage | What I did |
+| --- | --- |
+| **HVAC** | Chief Building Engineer at CBRE (2014–2020): ran building engineering teams, preventive maintenance and emergency response across Class A commercial buildings. |
+| **Controls** | Building automation installation, programming and diagnostics; now Facilities Supervisor for HVAC Instrument & Controls at the University of Texas at Austin, working with Johnson Controls Metasys, Trane and Honeywell systems. |
+| **Software** | Junior Software Engineer at Softkodes, Software Engineer at EcoRise, open-source contributor to Mozilla, and Software Engineer at SkipForward. |
 
-### `ParticleCard` ([src/components/experiences/ParticleCard.jsx](src/components/experiences/ParticleCard.jsx))
+The site tells that story: a typed-out headline over a header video, an About section, skills and a 3D job-history carousel, services, the projects below, and a contact form.
 
-Wraps each skill category (Frontend, Backend, Cloud, Database) in a rotating sphere made of ~900 points, arranged with a Fibonacci-lattice distribution so they read as an even, glowing cloud instead of clumped dots. Clicking it "explodes" the points outward and fades in the real skill list; clicking back reforms the sphere. This is a deliberate landing pattern for mobile: the sphere is a small, cheap-to-render teaser, and the expensive content (a scrollable list) only mounts once the user opts in, keeping the initial paint light on small devices.
+## Projects
 
-### `JobCarousel` ([src/components/experiences/JobCarousel.jsx](src/components/experiences/JobCarousel.jsx))
+These are the projects shown in the site's Portfolio section. The data lives in [`src/components/portfolio/projects.js`](src/components/portfolio/projects.js).
 
-Arranges job history cards in a 3D ring using three's `CSS3DRenderer` — a renderer that positions ordinary DOM elements (not WebGL pixels) in 3D space. That choice matters for accessibility and mobile: because each card is still a real `<button>` in the DOM, it stays keyboard-focusable, screen-reader-visible, and text-selectable, none of which a canvas-drawn card could offer. The ring supports drag-to-rotate (pointer events, not mouse-only), auto-rotates when idle, pauses on hover/focus, and every card dimension (`cardWidth`, `radius`) is derived from the container's actual `clientWidth` at layout time rather than a fixed desktop value — so it resizes itself on rotation instead of relying on a fixed set of breakpoints.
+| Project | What it is | Built with | Code |
+| --- | --- | --- | --- |
+| **GotNext** | A platform for basketball players, amateur to pro, to queue up for pickup games so everyone gets a fair turn. Web frontend, backend, identity service, infrastructure, and native iOS and Android apps. | React, Node.js, Swift, Kotlin, Cloudflare | Private |
+| **HBM Flower City** | Live website for an Austin wedding florist: animated home page, offerings, photo gallery with lightbox, and inquiry form. | React, Vite, Framer Motion, Sass, Vitest | [hbmAnimated](https://github.com/GPain2007/hbmAnimated) |
+| **Oh..I KNOW A GUY! Lawn Service** | Single-page site for an Austin lawn care business with services, customer reviews, and a free-estimate form. | React, EmailJS, Jest, GitHub Actions | [Know_A_Guy_Static](https://github.com/GPain2007/Know_A_Guy_Static) |
+| **Secure Notes API** | A FastAPI notes service built to demonstrate a security-first CI/CD pipeline. | Python, FastAPI, GitHub Actions, CodeQL, Trivy | [secure-cicd-pipeline-demo](https://github.com/GPain2007/secure-cicd-pipeline-demo) |
+| **PerfCompare (Mozilla)** | Debugged and stabilized Mozilla's open-source Firefox performance-comparison tool. | React, Material UI | [mozilla/perfcompare](https://github.com/mozilla/perfcompare) |
+| **FoxPuppet (Mozilla)** | Improved reliability of Mozilla's Python/Selenium browser automation framework. | Python, Selenium | [mozilla/FoxPuppet](https://github.com/mozilla/FoxPuppet) |
+| **Sauce Demo Test Suite** | Page Object Model test suite covering login, cart and checkout on a demo storefront. | Python, pytest, Selenium | [Pytest_Project](https://github.com/GPain2007/Pytest_Project) |
+| **Musicology** | A networking platform that connects musicians to collaborate, share work, and manage bookings. | React, Node.js, Express | [musician-networking-app](https://github.com/GPain2007/musician-networking-app) |
 
-### `ServiceCard` ([src/components/services/ServiceCard.jsx](src/components/services/ServiceCard.jsx))
+### Adding a project
 
-A wireframe icosahedron plus a particle halo sits behind each service card, dimming and shrinking when the card is opened so it doesn't compete with the content. It's the same "ambient 3D, cheap until interacted with" pattern as `ParticleCard`, reused for a different section.
+Add an object to the array in `projects.js`:
 
-**Why three.js at all, and why hand-rolled instead of `@react-three/fiber`:** these are small, self-contained scenes (a sphere, a ring, an icosahedron) with imperative animation loops that don't map cleanly to declarative JSX, and adding `@react-three/fiber` + `drei` would be a heavier dependency for three isolated effects. Each component manages its own `THREE.Scene`/renderer inside a `useEffect`, and — critically — tears it down completely in the cleanup function (`geometry.dispose()`, `material.dispose()`, `renderer.dispose()`, removing the DOM node, cancelling the animation frame). Skipping that cleanup is the most common way a three.js + React integration leaks memory on route changes or re-renders.
-
-## Motion in this project
-
-`motion/react` provides the `motion.*` components (a `motion.div`, `motion.button`, etc. that accept `initial`/`animate`/`exit`/`transition` props) and `AnimatePresence` (which keeps an exiting element mounted just long enough to finish its exit animation). It's used for:
-
-- **`JobModal`** ([src/components/experiences/JobModal.jsx](src/components/experiences/JobModal.jsx)) — the backdrop fades and the panel scales/slides in with `AnimatePresence`, so opening/closing a job's details never feels like a hard cut. It also closes on `Escape`, which matters more on mobile where a backdrop tap is the only other way out.
-- **`SkillScroll`** ([src/components/experiences/SkillScroll.jsx](src/components/experiences/SkillScroll.jsx)) — the skill detail panel expands with an animated `height: auto`, which `motion` supports (a plain CSS transition can't animate to `auto`).
-- **`ParticleCard`** and **`ServiceCard`** — the swap between the "click to open" prompt and the real content uses `AnimatePresence mode="wait"`, so the old view finishes leaving before the new one enters (no overlap flash).
-- **`Header`** ([src/components/header/Header.jsx](src/components/header/Header.jsx)) — the headline types itself in and clears itself out in a loop, staggering each letter's `opacity`/`blur` via `variants`.
-- **`Contact`, `Portfolio`, `ProjectModal`** — entrance and modal transitions follow the same `initial`/`animate`/`exit` pattern for consistency across the site.
-
-**Why `motion` over CSS transitions/keyframes:** several of these (`AnimatePresence`'s exit-before-unmount, staggered `variants`, animating to `height: auto`, spring physics on drag/hover in `ServiceCard`) aren't expressible in plain CSS without a lot of extra JS to fake them. Centralizing on one library also means the touch/drag/hover interactions behave consistently on mobile vs. desktop instead of every component reinventing its own transition logic.
-
-## Mobile-first approach
-
-"Mobile-first" here means two things working together:
-
-1. **Runtime sizing, not just breakpoints.** The 3D components read the actual container size (`mount.clientWidth`/`clientHeight`) on every layout pass and resize the camera, renderer, and card dimensions from that — e.g. `JobCarousel`'s card width is `Math.max(200, Math.min(260, width * 0.4))`, so a card is never wider than a phone screen can comfortably show, and never so small it's illegible on a tablet. This means the experience holds up at arbitrary widths, not just the two breakpoints below.
-2. **Breakpoints for layout, not content loss.** Every new/changed component ships with the same pair of `max-width` breakpoints:
-   - `1024px` ("tablet") — grids collapse from multi-column to single-column (e.g. `.experience_container` in [experience.css](src/components/experiences/experience.css)), and the carousel's stage height shrinks.
-   - `600px` ("phone") — spacing tightens further (gaps, control sizing) so touch targets stay reachable without the layout feeling cramped.
-
-   Nothing is hidden or removed at either breakpoint — every skill, every job, every project is still reachable on a phone, just laid out in a single column with tighter spacing instead of a grid.
-
-If you're changing or adding a component here, the expectation is: build the interaction so it works with a narrow, touch-only viewport first (no hover-only affordances, no fixed pixel widths wider than ~360px), then layer on the two breakpoints above for anything that should look different on a larger screen.
-
-## Google Analytics
-
-The site reports to a GA4 property (stream name "GPayne", measurement ID `G-EH2YTFW7Z4`) via the standard `gtag.js` snippet in [public/index.html](public/index.html). Because it's a static site with one deploy target, the measurement ID is written directly into the HTML rather than routed through a build-time environment variable — GA4 measurement IDs aren't secret (they're always visible in any page's source), so there's no reason to add that indirection.
-
-The snippet alone covers "visitations" (a `page_view` fires on every load) plus, via GA4's **Enhanced Measurement** (on by default for a new web stream), automatic tracking of:
-
-- Scroll depth
-- Outbound link clicks — this already covers the email/WhatsApp links in [`Contact`](src/components/contacts/Contact.jsx) and the social links in [`HeaderSocials`](src/components/header/HeaderSocials.jsx)
-- File downloads — this already covers the résumé `.docx` link in [`CTA`](src/components/header/cta.jsx)
-
-What Enhanced Measurement *can't* see is same-page interaction — clicking `#about` in the nav doesn't trigger a real navigation GA can distinguish from any other click, and a form `submit` event doesn't tell GA whether the email actually sent. For those two cases, [src/utils/analytics.js](src/utils/analytics.js) exports a small `trackEvent(name, params)` helper (a thin, guarded wrapper around `window.gtag`) that's called explicitly:
-
-- [`Nav`](src/components/nav/Nav.jsx) — fires a `nav_click` event with the target section on every anchor click.
-- [`Contact`](src/components/contacts/Contact.jsx) — fires a `contact_form_submit` event (`status: "success"` or `"error"`) from the `emailjs.sendForm` callback, since this is the site's actual conversion.
-
-`trackEvent` checks `typeof window.gtag === "function"` before calling it, so it's a silent no-op under Jest/jsdom (where `gtag` is never loaded — it only exists via the script tag in `index.html`) and none of the existing component tests needed to change.
-
-If the GA4 property ever changes, the measurement ID only needs to be updated in one place: the two `G-EH2YTFW7Z4` occurrences in `public/index.html`.
-
-## SEO
-
-The CRA boilerplate ships with placeholder metadata (`<title>Your New Best Decision</title>`, a generic description, `"name": "Create React App Sample"` in the manifest) that Google has no useful information to index or display. Everything below replaces those placeholders with real, crawlable content:
-
-- **`public/index.html`** — a real `<title>` and `<meta name="description">`, a `<link rel="canonical">` pointing at `https://gpayneportfolio.com/`, Open Graph (`og:title`, `og:description`, `og:type`, `og:url`, `og:image`) and Twitter card tags so links shared on social platforms render a proper preview instead of a bare URL, and a `Person` JSON-LD block (`@type: "Person"`, `sameAs` linking the real LinkedIn/GitHub profiles from `HeaderSocials`) so Google can attribute the page to a specific person for rich results.
-- **`public/manifest.json`** — `short_name`/`name` updated from the CRA placeholders to real branding, since these surface in browser tab groups and "Add to Home Screen" prompts.
-- **`public/robots.txt`** — adds a `Sitemap:` directive pointing crawlers at the new sitemap.
-- **`public/sitemap.xml`** (new) — a single-URL sitemap for the homepage. This is intentionally *one* `<url>` entry, not one per section (`#about`, `#contacts`, etc.) — those are same-page anchors, not separate crawlable pages, so listing them as separate sitemap URLs would be misleading to a crawler.
-- **`package.json`** — `homepage` updated from `http://` to `https://gpayneportfolio.com` to match the canonical URL and the real GA stream URL.
-
-## Testing Three.js and Motion (and why it's set up this way)
-
-The components above were built test-first: a failing test describing the behavior was written before the fix/feature, then the component was changed until it passed. That's the point of TDD here — it's not ceremony, it's what caught two real integration problems (below) before they could break the page for anyone.
-
-If you're new to this repo and wondering "why does this test file need three separate mocks just to click a button?", this section is for you.
-
-### The problem: three.js and jsdom don't get along
-
-Tests run in [Jest](https://jestjs.io/) against [jsdom](https://github.com/jsdom/jsdom), a JavaScript re-implementation of the DOM used because there's no real browser/GPU available in a test run. Running the existing test suite against the current code surfaced three failures, in order, each one hiding the next:
-
-1. **`three` itself wouldn't import.** Modern `three` ships as an ES module; its `require()`-facing entry point (`three.cjs`) internally does `import` from `three.module.js`, which Jest's default CommonJS-only transform can't parse. `three/examples/jsm/renderers/CSS3DRenderer.js` (used by `JobCarousel`) has the same problem — it's raw ESM.
-2. **jsdom's `<canvas>` has no drawing context.** `getContext('2d')` and WebGL contexts return `null`/`undefined` in jsdom — there's no native canvas backend — so anything that calls `ctx.createRadialGradient(...)` (both `ParticleCard` and `ServiceCard` build a particle sprite this way) throws immediately.
-3. **jsdom doesn't implement `IntersectionObserver`, `ResizeObserver`, or `window.matchMedia`.** `motion` reaches for all three the moment any `motion.*` component mounts (for `whileInView`, layout animations, and `prefers-reduced-motion`), so without stubs, mounting _any_ animated component throws.
-
-None of this means the components are broken — it means jsdom is missing browser features these libraries assume exist. The fix in each case is to give the test environment a stand-in for the missing piece, narrow enough that it doesn't hide a real bug.
-
-### What was installed
-
-```bash
-npm install --save-dev jest-canvas-mock
+```js
+{
+  id: 9,                       // unique
+  image: null,                 // optional: import a screenshot from src/assets
+  title: "My New Project",
+  description: "One or two sentences about what it does.",
+  tags: ["React", "Node.js"],  // shown in the preview
+  github: "https://github.com/GPain2007/my-new-project", // null for a private repo
+  demo: null,                  // optional live link
+}
 ```
 
-`jest-canvas-mock` patches `HTMLCanvasElement.prototype.getContext('2d')` with a working (if visually inert) implementation — `createRadialGradient`, `fillRect`, `addColorStop`, etc. all become real, callable methods that record calls instead of throwing. It's imported once in [src/setupTests.js](src/setupTests.js), before any test runs.
+The card fan resizes itself for any number of projects, and the tests check that the new entry is valid.
 
-### What was mocked, and why each mock is shaped the way it is
+## What's on the site
 
-- **[src/\_\_mocks\_\_/three.js](src/__mocks__/three.js)** — a manual mock for the whole `three` package. Because Jest's `roots` (via Create React App) is `<rootDir>/src`, a mock file adjacent to `node_modules` doesn't work here — it has to live at `src/__mocks__/three.js` to be picked up automatically for every `import * as THREE from "three"` in the codebase, no `jest.mock()` call needed in individual test files. It re-implements just enough of the API surface (`Scene`, `Group`, cameras, `Clock`, `WebGLRenderer`, `BufferGeometry`, `Points`, `Mesh`, etc.) as plain classes with no-op rendering, so components can mount, run their animation-loop math, and clean up — without ever touching a GPU.
-- **[src/\_\_mocks\_\_/three/examples/jsm/renderers/CSS3DRenderer.js](src/__mocks__/three/examples/jsm/renderers/CSS3DRenderer.js)** — a mock for `JobCarousel`'s deep import. Jest's automatic package mocking only matches whole-package specifiers (`"three"`), not subpath imports resolved to a specific file inside `node_modules`, so this one is wired up explicitly via `moduleNameMapper` in `package.json`'s `jest` config instead. Unlike the WebGL mock, this one keeps real behavior where it's cheap to: its `render()` walks the mocked scene graph and appends each card's real DOM element into the renderer's `domElement`, exactly like the real `CSS3DRenderer` does — which is what lets `JobCarousel.test.js` actually query and click a rendered job card.
-- **`setupTests.js` polyfills for `IntersectionObserver`, `ResizeObserver`, and `window.matchMedia`** — minimal stand-ins (`observe`/`unobserve`/`disconnect` no-ops; `matches: false` for media queries) so any `motion.*` component can mount without crashing. They don't simulate real viewport intersection — that's out of scope for a unit test — they just stop jsdom's absence of the API from being a hard crash.
-- **`"resetMocks": false`** was added to the `jest` config in `package.json`. Create React App defaults `resetMocks` to `true` (wipes every `jest.fn()`'s implementation before each test), but `jest-canvas-mock` implements its canvas context as a `jest.fn()` internally — with `resetMocks: true`, that implementation gets wiped before the _first_ test in a file even runs, and `getContext('2d')` silently returns `undefined` again. This was found by writing a one-line debug test and watching `getContext('2d')` return `undefined` instead of a real context — a good example of why "run the test and read the actual failure" beats guessing.
+| Section | Component | What it does |
+| --- | --- | --- |
+| Header | `components/header` | Background video, a headline that types itself in a loop, a résumé download, and social links |
+| Nav | `components/nav` | Floating icon nav to each section; clicks are reported to Google Analytics |
+| About | `components/about` | Short bio whose words scatter and reform on a timer |
+| Experience | `components/experiences` | Skills inside clickable 3D particle spheres, plus a 3D job carousel with a details modal |
+| Services | `components/services` | Three service cards, each with a 3D wireframe behind it |
+| Portfolio | `components/portfolio` | Project cards fanned out like a hand of cards (stacked on phones), each opening a preview |
+| Contact | `components/contacts` | Rotating email/phone/WhatsApp cards and a contact form sent through EmailJS |
+| Footer | `components/footer` | Section links and copyright |
 
-### Test files and what they verify
+## Tech stack
 
-| File                                                                                               | What it covers                                                                                                                                                                                                              |
-| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [src/App.test.js](src/App.test.js)                                                                 | Smoke test: the whole app tree mounts without throwing. This is the one test that would have caught every issue above — it renders every component this README describes at once.                                           |
-| [src/components/experiences/JobModal.test.js](src/components/experiences/JobModal.test.js)         | Renders as an accessible `dialog`, closes on the × button, closes on `Escape`. No three.js/canvas mocking needed — it's pure `motion`.                                                                                      |
-| [src/components/experiences/SkillScroll.test.js](src/components/experiences/SkillScroll.test.js)   | Renders one button per skill, clicking the active skill opens its detail panel, clicking a different skill switches instead of opening. Stubs `Element.prototype.scrollTo`, which jsdom doesn't implement.                  |
-| [src/components/experiences/ParticleCard.test.js](src/components/experiences/ParticleCard.test.js) | Starts as a sphere prompt, reveals its children after materializing, returns to the prompt via the back button. Runs on **real** timers (not `jest.useFakeTimers()`) — see below.                                           |
-| [src/components/experiences/JobCarousel.test.js](src/components/experiences/JobCarousel.test.js)   | One dot + one card per job, clicking a card opens the right job in a modal, closing the modal removes it, the pause/resume toggle flips its accessible label. This is the one exercising the `CSS3DRenderer` DOM-sync mock. |
+- [React 18](https://react.dev/), bootstrapped with [Create React App](https://create-react-app.dev/) (`react-scripts` 5)
+- [three.js](https://threejs.org/) for the 3D particle spheres, job carousel and service-card wireframes
+- [motion](https://motion.dev/) (formerly Framer Motion) for transitions, modals and the typed headline
+- [EmailJS](https://www.emailjs.com/) to send the contact form without a backend
+- [react-icons](https://react-icons.github.io/react-icons/)
+- Google Analytics 4 (`gtag.js` in `public/index.html`, plus `src/utils/analytics.js` for nav clicks and form submits)
+- [Jest](https://jestjs.io/) + [React Testing Library](https://testing-library.com/) for tests, GitHub Actions for CI
 
-**Why real timers, not fake ones, for the animation tests:** `ParticleCard`'s and `JobCarousel`'s modal transitions are gated by `motion`'s own `requestAnimationFrame`-driven exit animations (`AnimatePresence mode="wait"` won't mount the next view until the previous one finishes exiting). `jest.useFakeTimers()` doesn't reliably drive that animation loop to completion — the first attempt at this (using fake timers + `jest.advanceTimersByTime`) left components stuck mid-animation instead of transitioning. Waiting on the real clock (`await screen.findByText(...)`, `await waitForElementToBeRemoved(...)`) costs a few hundred milliseconds per test but verifies the actual transition a user experiences, which is the more honest test.
+## Getting started
 
-### Running the tests
+Requires **Node.js 20 or newer**.
 
 ```bash
-npm test              # interactive watch mode
-CI=true npm test      # single run, non-interactive (what CI / this README's verification used)
+git clone https://github.com/GPain2007/React-Portfolio.git
+cd React-Portfolio
+npm ci
+npm start          # http://localhost:3000
 ```
 
-All 5 suites / 14 tests pass as of this writing, confirmed by running the suite three times in a row (`ParticleCard.test.js` and `JobCarousel.test.js` are the ones with real-timer waits, so repeat runs are how flakiness would show up).
+### Scripts
 
-## Using Claude Code on this project
+| Command | What it does |
+| --- | --- |
+| `npm start` | Development server with reload on save |
+| `npm test` | Tests in watch mode |
+| `CI=true npm test` | One full test run (what CI runs) |
+| `npm run build` | Production build into `build/` |
 
-The `JobCarousel`/`JobModal`/`ParticleCard` interaction work and this test suite were built with [Claude Code](https://claude.com/claude-code) acting as a pair-programmer, following the same loop each time:
+## Tests and CI
 
-1. **Read first.** Before writing anything, read the component being changed, its CSS, and any sibling components that share patterns — so new code matches existing conventions (e.g. the `useEffect`-managed three.js scene + cleanup pattern already used by `ParticleCard` was reused for `JobCarousel` rather than introducing a new approach).
-2. **Write the test, run it, read the actual error.** Every mock and config change documented above (the `three` mock, the `CSS3DRenderer` `moduleNameMapper` entry, `jest-canvas-mock`, the observer/`matchMedia` polyfills, `resetMocks: false`) exists because a test was run, it failed with a specific error, and the fix targeted that exact error — not a guess. This is visible in the progression of failures in the previous section: each fix revealed the next problem underneath it.
-3. **Verify, don't assume.** After a fix, the suite was re-run (and, for the animation-timing tests, run multiple times) before considering the work done, rather than trusting that a code change "should" work.
+Tests live next to the components they cover:
 
-If you're extending this repo with Claude Code, the same loop applies: make the smallest change that could fix or add the behavior, run the real test command, and let the actual failure output — not intuition about how three.js/motion/jsdom "probably" behave — drive the next change.
+| Test file | Covers |
+| --- | --- |
+| `src/App.test.js` | The whole page mounts without errors |
+| `components/experiences/*.test.js` | Particle cards, skill list, job carousel and job modal |
+| `components/portfolio/Portfolio.test.js` | Project data is valid with no placeholders, cards open and close previews, private repos don't show a dead GitHub button |
+| `components/nav/Nav.test.js` | Every nav link points at a real section and reports clicks to analytics |
+| `utils/analytics.test.js` | The analytics helper is safe when Google Analytics hasn't loaded |
 
-## Available scripts
+three.js and jsdom don't get along without some mocking. [docs/testing.md](docs/testing.md) explains every mock and config setting and why each exists.
 
-In the project directory, you can run:
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) installs dependencies, runs the tests and builds the site:
 
-### `npm start`
+- on every push and pull request to `main`
+- every Monday at 13:47 UTC (early Monday morning, Central time), so dependency or environment breakage shows up even in weeks with no commits
+- on demand from the Actions tab
 
-Runs the app in development mode at [http://localhost:3000](http://localhost:3000). Reloads on save.
+If a scheduled run fails, the workflow opens a "Weekly CI check failed" issue (or comments on the open one).
 
-### `npm test`
+## How it's built
 
-Runs the test suite via `react-scripts test` (Jest + React Testing Library) in interactive watch mode. Use `CI=true npm test` for a single non-interactive run.
+**three.js.** Each 3D component (`ParticleCard`, `JobCarousel`, `ServiceCard`) builds its own scene inside a `useEffect` and fully disposes of geometry, materials and the renderer on cleanup to avoid memory leaks. `JobCarousel` uses `CSS3DRenderer`, so the job cards stay real, keyboard-focusable DOM buttons rather than pixels on a canvas.
 
-### `npm run build`
+**Motion.** Used where CSS can't do the job: exit animations before unmount (`AnimatePresence`), staggered letters in the headline, and animating to `height: auto`.
 
-Builds a minified, production-ready bundle into `build/`.
+**Mobile first.** The 3D components size themselves from their container's real width, and every layout collapses to one column at `1024px` and tightens at `600px`. Nothing is hidden on small screens.
 
-### `npm run eject`
+**SEO.** `public/index.html` has a real title and description, a canonical URL, Open Graph and Twitter tags, and `Person` structured data. `public/sitemap.xml` and `robots.txt` point crawlers at the homepage.
 
-One-way copy of all CRA config (Webpack, Babel, ESLint, and the Jest config referenced above) into the project. Not needed for anything described in this README — the Jest overrides here were made through `package.json`'s `jest` field, which CRA supports without ejecting.
+**Analytics.** GA4 measurement ID `G-EH2YTFW7Z4`, set in two places in `public/index.html`. Enhanced Measurement covers page views, scrolls, outbound links and the résumé download; `trackEvent` adds `nav_click` and `contact_form_submit`.
+
+## Deployment
+
+`npm run build` produces a static site in `build/` that can be served from any static host. The production domain is `https://gpayneportfolio.com` (set as `homepage` in `package.json`).
+
+## Known issues
+
+Open problems are tracked in [GitHub Issues](https://github.com/GPain2007/React-Portfolio/issues). The main ones:
+
+- Several files referenced by the page don't exist yet: `logo192.png`/`logo512.png` (link-preview image and app icons) and `header-poster.jpg`
+- The 8 MB header video is fully preloaded on every visit, including on phones
+- Create React App is deprecated; moving to Vite and Vitest is planned
+- Animations don't respect the visitor's "reduce motion" setting
+
+## Recent changes
+
+This log is kept up to date by a weekly review.
+
+- **2026-11-13:** README rewritten. Placeholder portfolio projects replaced with real ones (GotNext, HBM Flower City, the lawn service site, Secure Notes API, Sauce Demo tests), project data moved to `projects.js`, project tags added to the preview, the GitHub button hidden for private repos. Nav fixed (removed the link to a nonexistent Testimonials section, added Portfolio, added labels). New tests for Portfolio, Nav and analytics. GitHub Actions CI added.

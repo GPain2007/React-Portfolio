@@ -1,60 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import "./Portfolio.css";
-import IMG1 from "../../assets/IMG1.png";
 import { AiFillGithub } from "react-icons/ai";
 import ProjectModal from "./ProjectModal";
+import data from "./projects";
 
-const data = [
-  {
-    id: 1,
-    image: IMG1,
-    title: "Musicology",
-    description:
-      "A networking platform that connects musicians to collaborate, share work, and manage bookings.",
-    github: "https://github.com/GPain2007/musician-networking-app",
-    demo: "https://musicology-umekev.herokuapp.com/",
-  },
-  {
-    id: 2,
-    image: null,
-    title: "PerfCompare (Mozilla)",
-    description:
-      "Debugged and stabilized this open-source Firefox performance-comparison tool, fixing front-end and back-end issues with React, React Native, and Material UI.",
-    github: "https://github.com/mozilla/perfcompare",
-    demo: null,
-  },
-  {
-    id: 3,
-    image: null,
-    title: "FoxPuppet (Mozilla)",
-    description:
-      "Improved reliability of this Python/Selenium browser automation framework through root-cause debugging and optimized wait and error handling.",
-    github: "https://github.com/mozilla/FoxPuppet",
-    demo: null,
-  },
-  {
-    id: 4,
-    image: null,
-    title: "New Project",
-    description: "Description for the new project goes here.",
-    github: null,
-    demo: null,
-  },
-  {
-    id: 5,
-    image: null,
-    title: "Another Project",
-    description: "Description for another project goes here.",
-    github: null,
-    demo: null,
-  },
-];
-
-// Rotation/spread applied per card, step away from the center card.
-const FAN_SPREAD_DEG = 14;
-const FAN_X_STEP = 100;
-const FAN_Y_STEP = 26;
+// Total rotation/spread of the outermost card. Each card's share is scaled by
+// how many cards there are, so the fan keeps the same footprint whether it
+// holds 5 projects or 10.
+const FAN_MAX_ROTATE_DEG = 28;
+const FAN_MAX_X = 200;
+const FAN_MAX_Y = 52;
 
 const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(
@@ -74,6 +30,7 @@ const Portfolio = () => {
   const [activeProject, setActiveProject] = useState(null);
   const isMobile = useIsMobile();
   const mid = (data.length - 1) / 2;
+  const fanSteps = Math.max(mid, 1);
 
   return (
     <section id="portfolio">
@@ -89,13 +46,13 @@ const Portfolio = () => {
         viewport={{ once: true, amount: 0.3 }}
         transition={{ staggerChildren: 0.15, delayChildren: 0.1 }}
       >
-        {data.map(({ id, image, title, description, github, demo }, index) => {
+        {data.map(({ id, image, title, description, tags, github, demo }, index) => {
           const offset = index - mid;
-          const rotate = isMobile ? 0 : offset * FAN_SPREAD_DEG;
-          const x = isMobile ? 0 : offset * FAN_X_STEP;
-          const y = isMobile ? 0 : Math.abs(offset) * FAN_Y_STEP;
+          const rotate = isMobile ? 0 : (offset / fanSteps) * FAN_MAX_ROTATE_DEG;
+          const x = isMobile ? 0 : (offset / fanSteps) * FAN_MAX_X;
+          const y = isMobile ? 0 : (Math.abs(offset) / fanSteps) * FAN_MAX_Y;
 
-          const project = { id, image, title, description, github, demo };
+          const project = { id, image, title, description, tags, github, demo };
 
           return (
             <motion.article
@@ -105,7 +62,7 @@ const Portfolio = () => {
               tabIndex={0}
               aria-label={`Preview ${title}`}
               style={{
-                zIndex: 10 - Math.abs(offset),
+                zIndex: Math.round(20 - Math.abs(offset)),
                 transformOrigin: "50% 100%",
               }}
               variants={{
@@ -122,7 +79,7 @@ const Portfolio = () => {
               whileHover={
                 isMobile
                   ? { scale: 1.02 }
-                  : { y: y - 45, rotate: 0, scale: 1.08, zIndex: 20 }
+                  : { y: y - 45, rotate: 0, scale: 1.08, zIndex: 30 }
               }
               whileTap={{ scale: 0.97 }}
               onClick={() => setActiveProject(project)}
