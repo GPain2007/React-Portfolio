@@ -25,7 +25,7 @@ These are the projects shown in the site's Portfolio section. The data lives in 
 | **GotNext** | A platform for basketball players, amateur to pro, to queue up for pickup games so everyone gets a fair turn. Web frontend, backend, identity service, infrastructure, and native iOS and Android apps. | React, Node.js, Swift, Kotlin, Cloudflare | Private |
 | **HBM Flower City** | Live website for an Austin wedding florist: animated home page, offerings, photo gallery with lightbox, and inquiry form. | React, Vite, Framer Motion, Sass, Vitest | [hbmAnimated](https://github.com/GPain2007/hbmAnimated) |
 | **Oh..I KNOW A GUY! Lawn Service** | Single-page site for an Austin lawn care business with services, customer reviews, and a free-estimate form. | React, EmailJS, Jest, GitHub Actions | [Know_A_Guy_Static](https://github.com/GPain2007/Know_A_Guy_Static) |
-| **Secure Notes API** | A FastAPI notes service built to demonstrate a security-first CI/CD pipeline. | Python, FastAPI, GitHub Actions, CodeQL, Trivy | [secure-cicd-pipeline-demo](https://github.com/GPain2007/secure-cicd-pipeline-demo) |
+| **Secure Notes API (CI/CD Pipeline)** | A FastAPI notes service built to demonstrate a security-first CI/CD pipeline. | Python, FastAPI, GitHub Actions, CodeQL, Trivy | [secure-cicd-pipeline-demo](https://github.com/GPain2007/secure-cicd-pipeline-demo) |
 | **PerfCompare (Mozilla)** | Debugged and stabilized Mozilla's open-source Firefox performance-comparison tool. | React, Material UI | [mozilla/perfcompare](https://github.com/mozilla/perfcompare) |
 | **FoxPuppet (Mozilla)** | Improved reliability of Mozilla's Python/Selenium browser automation framework. | Python, Selenium | [mozilla/FoxPuppet](https://github.com/mozilla/FoxPuppet) |
 | **Sauce Demo Test Suite** | Page Object Model test suite covering login, cart and checkout on a demo storefront. | Python, pytest, Selenium | [Pytest_Project](https://github.com/GPain2007/Pytest_Project) |
@@ -53,7 +53,7 @@ The card fan resizes itself for any number of projects, and the tests check that
 
 | Section | Component | What it does |
 | --- | --- | --- |
-| Header | `components/header` | Background video, a headline that types itself in a loop, a résumé download, and social links |
+| Header | `components/header` | Background video, a headline that types itself in a loop, a Résumé button that opens the PDF in a new tab, and social links |
 | Nav | `components/nav` | Floating icon nav to each section; clicks are reported to Google Analytics |
 | About | `components/about` | Short bio whose words scatter and reform on a timer |
 | Experience | `components/experiences` | Skills inside clickable 3D particle spheres, plus a 3D job carousel with a details modal |
@@ -101,6 +101,7 @@ Tests live next to the components they cover:
 | `src/App.test.js` | The whole page mounts without errors |
 | `components/experiences/*.test.js` | Particle cards, skill list, job carousel and job modal |
 | `components/portfolio/Portfolio.test.js` | Project data is valid with no placeholders, cards open and close previews, private repos don't show a dead GitHub button |
+| `utils/renderLoop.test.js` | 3D scenes only animate on screen and with the tab visible, cap frame steps, re-size only on real size changes, and fit the sphere to narrow cards |
 | `components/nav/Nav.test.js` | Every nav link points at a real section and reports clicks to analytics |
 | `utils/analytics.test.js` | The analytics helper is safe when Google Analytics hasn't loaded |
 
@@ -130,7 +131,15 @@ If a scheduled run fails, the workflow opens a "Weekly CI check failed" issue (o
 
 ## Deployment
 
-`npm run build` produces a static site in `build/` that can be served from any static host. The production domain is `https://gpayneportfolio.com` (set as `homepage` in `package.json`).
+`npm run build` produces a static site in `build/` that can be served from any static host. The production domain is `https://gpayneportfolio.com` (set as `homepage` in `package.json`), hosted on Hostinger.
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) deploys it on every push to `main` (a merged PR) or on demand from the Actions tab:
+
+1. Runs the tests, builds the site, and checks the build contains `index.html`, the main JS bundle and the résumé PDF.
+2. Waits for approval on the `production` environment (Settings → Environments).
+3. Uploads only changed files to Hostinger over FTPS, then checks the live site returns 200 and serves the new bundle.
+
+It needs the `HOSTINGER_FTP_SERVER`, `HOSTINGER_FTP_USERNAME` and `HOSTINGER_FTP_PASSWORD` secrets. Optional repository variables: `HOSTINGER_SERVER_DIR` (default `public_html/`), `HOSTINGER_FTP_PROTOCOL` (default `ftps`) and `HOSTINGER_FTP_PORT` (default `21`).
 
 ## Known issues
 
@@ -145,5 +154,7 @@ Open problems are tracked in [GitHub Issues](https://github.com/GPain2007/React-
 
 This log is kept up to date by a weekly review.
 
+- **2026-11-13:** Added `.github/workflows/deploy.yml`: merges to `main` are tested, built, and uploaded to Hostinger over FTPS after approval on the `production` environment, followed by a live-site check.
+- **2026-11-13:** Résumé is now a PDF that opens in a new tab instead of a `.docx` download. The SkipForward role is now "Software Engineer (Contract)" with bullets matching the résumé.
 - **2026-11-13:** Fixed stutter and glitching on phones in the Experience and Services sections. The 3D scenes pause when off screen, when the tab is hidden, and once a skill sphere has exploded. They use lower pixel density and fewer particles on phones, re-size only when their card actually changes size, and fit the sphere to narrow cards. Taps no longer count as a hover that never ends; rapid taps can't overlap transitions. The skill list is now a three-row picker that doesn't fight page scrolling. Shared helpers live in `src/utils/renderLoop.js`.
 - **2026-11-13:** README rewritten. Placeholder portfolio projects replaced with real ones (GotNext, HBM Flower City, the lawn service site, Secure Notes API, Sauce Demo tests), project data moved to `projects.js`, project tags added to the preview, the GitHub button hidden for private repos. Nav fixed (removed the link to a nonexistent Testimonials section, added Portfolio, added labels). New tests for Portfolio, Nav and analytics. GitHub Actions CI added.
