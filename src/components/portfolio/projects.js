@@ -76,16 +76,6 @@ const projects = [
     github: "https://github.com/GPain2007/Pytest_Project",
     demo: null,
   },
-  {
-    id: 8,
-    image: IMG1,
-    title: "Musicology",
-    description:
-      "A networking platform that connects musicians to collaborate, share work, and manage bookings.",
-    tags: ["React", "Node.js", "Express"],
-    github: "https://github.com/GPain2007/musician-networking-app",
-    demo: "https://musicology-umekev.herokuapp.com/",
-  },
 ];
 
 export default projects;
