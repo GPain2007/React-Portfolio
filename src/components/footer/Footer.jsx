@@ -43,7 +43,7 @@ const Footer = () => {
           <FaWalking />
         </span>
         <small className="footer_copyright">
-          GPayne &copy; 2024. All rights reserved.
+          GPayne &copy; {new Date().getFullYear()}. All rights reserved.
         </small>
         <span className="footer_figure footer_figure-right" aria-hidden="true">
           <FaWalking />
