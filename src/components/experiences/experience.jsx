@@ -142,7 +142,7 @@ const JOB_EXPERIENCE = [
     location: "Austin, TX",
     period: "Apr 2026 – Present",
     points: [
-      "Develop scalable Python backend applications and automation solutions for AI integration with email and PR system, with increase response time by 92% in most systems.",
+      "Develop scalable Python backend applications and automation for AI integration with email and PR systems, cutting response times by 92% in most systems.",
       "Integrate cloud technologies, REST APIs, analytics, and AI-driven workflows into production systems.",
       "Collaborate across engineering teams to deliver reliable, maintainable software through code review and testing.",
     ],
