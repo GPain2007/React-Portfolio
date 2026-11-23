@@ -29,7 +29,6 @@ These are the projects shown in the site's Portfolio section. The data lives in 
 | **PerfCompare (Mozilla)** | Debugged and stabilized Mozilla's open-source Firefox performance-comparison tool. | React, Material UI | [mozilla/perfcompare](https://github.com/mozilla/perfcompare) |
 | **FoxPuppet (Mozilla)** | Improved reliability of Mozilla's Python/Selenium browser automation framework. | Python, Selenium | [mozilla/FoxPuppet](https://github.com/mozilla/FoxPuppet) |
 | **Sauce Demo Test Suite** | Page Object Model test suite covering login, cart and checkout on a demo storefront. | Python, pytest, Selenium | [Pytest_Project](https://github.com/GPain2007/Pytest_Project) |
-| **Musicology** | A networking platform that connects musicians to collaborate, share work, and manage bookings. | React, Node.js, Express | [musician-networking-app](https://github.com/GPain2007/musician-networking-app) |
 
 ### Adding a project
 
@@ -37,7 +36,7 @@ Add an object to the array in `projects.js`:
 
 ```js
 {
-  id: 9,                       // unique
+  id: 8,                       // unique
   image: null,                 // optional: import a screenshot from src/assets
   title: "My New Project",
   description: "One or two sentences about what it does.",
@@ -60,7 +59,7 @@ The card fan resizes itself for any number of projects, and the tests check that
 | Services | `components/services` | Three service cards, each with a 3D wireframe behind it |
 | Portfolio | `components/portfolio` | Project cards fanned out like a hand of cards (stacked on phones), each opening a preview |
 | Contact | `components/contacts` | Rotating email/phone/WhatsApp cards and a contact form sent through EmailJS |
-| Footer | `components/footer` | Section links and copyright |
+| Footer | `components/footer` | Section links and a copyright line that always shows the current year |
 
 ## Tech stack
 
@@ -154,6 +153,9 @@ Open problems are tracked in [GitHub Issues](https://github.com/GPain2007/React-
 
 This log is kept up to date by a weekly review.
 
+- **2026-11-20:** Removed the Musicology project card; its Heroku demo is no longer live.
+- **2026-11-20:** Updated the résumé PDF and the SkipForward bullet on the site to match ("cutting response times by 92%").
+- **2026-11-20:** Footer copyright now shows the current year instead of a hardcoded 2024.
 - **2026-11-13:** Added `.github/workflows/deploy.yml`: merges to `main` are tested, built, and uploaded to Hostinger over FTPS after approval on the `production` environment, followed by a live-site check.
 - **2026-11-13:** Résumé is now a PDF that opens in a new tab instead of a `.docx` download. The SkipForward role is now "Software Engineer (Contract)" with bullets matching the résumé.
 - **2026-11-13:** Fixed stutter and glitching on phones in the Experience and Services sections. The 3D scenes pause when off screen, when the tab is hidden, and once a skill sphere has exploded. They use lower pixel density and fewer particles on phones, re-size only when their card actually changes size, and fit the sphere to narrow cards. Taps no longer count as a hover that never ends; rapid taps can't overlap transitions. The skill list is now a three-row picker that doesn't fight page scrolling. Shared helpers live in `src/utils/renderLoop.js`.
